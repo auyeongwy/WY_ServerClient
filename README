@@ -1,0 +1,5 @@
+Introduction
+============
+WY_ServerClient contains a collection of server-client applications to illustrate and serve as a reference to server-client socket programming.
+
+For more information, refer to docs/README.md
