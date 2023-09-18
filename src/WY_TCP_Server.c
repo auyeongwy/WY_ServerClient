@@ -8,6 +8,7 @@
  * - Exits on SIGINT (Ctrl^C).
 */
 
+#define _POSIX_C_SOURCE 200112L
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -16,11 +17,14 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <poll.h>
+#include <netdb.h>
+#include "WY_SC_Helper.h"
 
 
 int m_server_socket = -1; /**< The server socket descriptor. */
 int m_connected_socket = -1; /**< The connected socket descriptor. */
 volatile sig_atomic_t m_exit = 0; /**< Status variable to determine if the application should exit. 1=exit. */
+struct WY_SC_ADDR m_addr; /**< The address to bind to. */
 
 
 /**
@@ -51,11 +55,15 @@ void accept_connection();
 void receive_messages();
 
 
+
 int main(int argc, char * argv[])
 {
+    get_ip_from_args(argc, argv, &m_addr);
+    printf("Listening on %s %s\n", m_addr.ip, m_addr.port);
+
     signal(SIGINT, handle_signal); /* Set up signal handler. */
 
-    if(init_tcp_server() == -1) { /* Exit spplication if we cannot even set up basic TCP server functions. */
+    if(init_tcp_server(&m_addr) == -1) { /* Exit application if we cannot even set up basic TCP server functions. */
         printf("Init TCP server failed\n");
         return -1;
     }
@@ -72,29 +80,32 @@ int main(int argc, char * argv[])
 
 int init_tcp_server()
 {
-    struct sockaddr_in6 address;
     int tmp = 1;
+    struct addrinfo hints, *address=NULL;
 
-    if((m_server_socket = socket(AF_INET6, SOCK_STREAM, 0)) == -1) /* Create TCP socket. */
+    if((m_server_socket = socket(m_addr.ipdomain, SOCK_STREAM, 0)) == -1) /* Create TCP socket. */
         return -1;
 
     if(setsockopt(m_server_socket, SOL_SOCKET, SO_REUSEADDR, &tmp, sizeof(int)) < 0) /* Set port to be immediately reusable after termination. */
         return -1;
 
-    address.sin6_family = AF_INET6;
-    address.sin6_port = htons(9234);
-    address.sin6_flowinfo = 0;
-    //if(inet_pton(AF_INET6, "::1", &(address.sin6_addr)) != 1) /* IPV6 loopback. */
-      //  return -1;
-    address.sin6_addr = in6addr_any;
-    address.sin6_scope_id = 0;
-
-    if(bind(m_server_socket, (struct sockaddr *)&address, sizeof(struct sockaddr_in6)) == -1)
+    memset(&hints, 0x00, sizeof(struct addrinfo));
+    hints.ai_family = m_addr.ipdomain;
+    hints.ai_socktype = SOCK_STREAM;
+    if(getaddrinfo(m_addr.ip, m_addr.port, &hints, &address) != 0) /* Get the address struct for performing connection. */
         return -1;
 
-    if(listen(m_server_socket, 0) == -1)
+    if(bind(m_server_socket, address->ai_addr, address->ai_addrlen) == -1) {
+        freeaddrinfo(address);
         return -1;
+    }
 
+    if(listen(m_server_socket, 0) == -1) {
+        freeaddrinfo(address);
+        return -1;
+    }
+
+    freeaddrinfo(address);
     return 0;
 }
 
@@ -115,13 +126,14 @@ void close_tcp_server()
 void accept_connection()
 {
     struct pollfd s_poll_fd;
-    struct sockaddr_in6 address;
+    unsigned char buf[sizeof(struct sockaddr_in6)];
+    struct sockaddr * address = (struct sockaddr *)buf;
     unsigned int tmp = sizeof(struct sockaddr_in6);
-    char address_str[INET6_ADDRSTRLEN];
+    struct WY_SC_ADDR s_peer_addr;
 
-    s_poll_fd.fd = m_server_socket;
+
+    s_poll_fd.fd = m_server_socket; /* Prepare to accept connection. */
     s_poll_fd.events = POLLIN;
-
     do {
         if(poll(&s_poll_fd, 1, 2000) > 0) /* Waits 2 seconds each call. */
             break;
@@ -129,21 +141,21 @@ void accept_connection()
     if(m_exit == 1)
         return;
 
-    if((m_connected_socket = accept(m_server_socket, (struct sockaddr *) &address, &tmp)) == -1) {
+
+    if((m_connected_socket = accept(m_server_socket, address, &tmp)) == -1) { /* The buffers are large enough for either IPv6 or IPv4 address. */ 
         printf("TCP server accept connection failed\n");
         return;
     }
 
-    if(inet_ntop(AF_INET6, &address, address_str, INET6_ADDRSTRLEN) != NULL) {
-        printf("Client connected from %s PORT %d\n", address_str, ntohs(address.sin6_port));
-    }
-    
+    s_peer_addr.ipdomain = m_addr.ipdomain; /* Set to AF_INET6 or AF_INET. */
+    get_address_from_sockaddr(address, &s_peer_addr); /* Get IP address in human-readable form. */
+    printf("Client connected from %s : %s\n", s_peer_addr.ip, s_peer_addr.port);
 }
 
 
 void receive_messages()
 {
-    char buffer[1024];
+    char buffer[1024]; /* Set a limit to the receive buffer. */
     memset(buffer, 0, 1024);
     ssize_t len = 0;
 
@@ -165,6 +177,6 @@ void handle_signal(int p_signal)
 {
     if(p_signal == SIGINT) { /* Catch Ctrl^C. */
         printf("\nCaught SIGINT. Exit.\n");
-        m_exit = 1;
+        m_exit = 1; /* Set the exit status to exit the application. */
     }
 }
