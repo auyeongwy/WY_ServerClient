@@ -5,7 +5,14 @@
  * - Listens for 1 connection.<br>
  * - Echos all messages sent from the connected peer.<br>
  * - If the peer disconnects, return to listening for a TCP connection.<br>
- * - Exits on SIGINT (Ctrl^C).
+ * - Exits on SIGINT (Ctrl^C).<br><br>
+ * 
+ * Usage:<br>
+ * <code>./WY_TCP_Server <IP address> <port></code><br>
+ * Example: <br>
+ * <code>./WY_TCP_Server 127.0.0.1 11235</code> (Listens on 127.0.0.1 port 11235)<br>
+ * OR <br>
+ * <code>./WY_TCP_Server</code> (Listens on ::1 port 9234 by default)
 */
 
 #define _POSIX_C_SOURCE 200112L

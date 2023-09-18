@@ -3,7 +3,14 @@
  * This appliation demonstrates the following:
  * - Starts a TCP connection to the WY_TCP_Server application.<br>
  * - Sends a series of messages to the connected server.<br>
- * - Exits.
+ * - Exits.<br>
+ * 
+ * Usage:<br>
+ * <code>./WY_TCP_Client <IP address> <port></code><br>
+ * Example: <br>
+ * <code>./WY_TCP_Client 127.0.0.1 11235</code> (Connects to 127.0.0.1 port 11235)<br>
+ * OR <br>
+ * <code>./WY_TCP_Client</code> (Connects to ::1 port 9234 by default)
 */
 #define _POSIX_C_SOURCE 200112L
 #include <sys/socket.h>

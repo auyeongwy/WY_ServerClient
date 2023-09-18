@@ -1,3 +1,6 @@
+/**
+ * @file WY_SC_Helper.c
+*/
 #include "WY_SC_Helper.h"
 #include <string.h>
 #include <stdlib.h>
@@ -42,13 +45,13 @@ void get_ip_from_args(const int argc, char * argv[], struct WY_SC_ADDR * restric
         }
     }
 
-    p_addr->ipdomain = AF_INET6;
+    p_addr->ipdomain = AF_INET6; /* No command line arguments provided or error, so use default values. */
     strncpy(p_addr->port, "9234", 7);
     strncpy(p_addr->ip, "::1", INET6_ADDRSTRLEN-1);
 }
 
 
-void get_address_from_sockaddr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * p_addr)
+void get_address_from_sockaddr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict p_addr)
 {
     if(p_addr->ipdomain == AF_INET6)
         get_ip6_addr(p_sockaddr, p_addr);

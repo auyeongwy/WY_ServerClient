@@ -45,7 +45,7 @@ void get_ip_from_args(const int p_argc, char * p_argv[], struct WY_SC_ADDR * res
  * @param p_sockaddr The struct sockaddr to exctract the IP and port information.
  * @param p_addr The extracted information is written into this struct. 
  */
-void get_address_from_sockaddr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR *p_addr);
+void get_address_from_sockaddr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict p_addr);
 
 
 #endif

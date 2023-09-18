@@ -31,11 +31,26 @@ Demo applications: WY_TCP_Server and WY_TCP_Client
 ==================================================
 WY_TCP_Server:
 - WY_TCP_Server starts a TCP server and listens for 1 TCP connection only. 
+- By default, WY_TCP_Server will accept command line arguments in the form: 
+
+    `./WY_TCP_Server <IP address> <port>` (Accepts IPv6 or Ipv4 address)<br>
+    Example:<br>
+    `./WY_TCP_Server 127.0.1 11234` (Listen on 127.0.0.1 port 11234)<br>
+    OR<br>
+    `./WY_TCP_Server` (Listen on defaults of ::1 port 9234)
+
 - It will echo messages sent by the connected client. There is an internal buffer limit which limits the amount of data received and processed.
 - If the client disconnects, it will return to listening for 1 TCP client connection.
 - The application exits if it catches a SIGINT (Ctrl^C). 
 
 WY_TCP_Client:
 - WY_TCP_Client simply connects to WY_TCP_Server, sends a series of messages and exits.
+- By default, WY_TCP_Client will accept command line arguments in the form: 
+
+    `./WY_TCP_Client <IP address> <port>` (Accepts IPv6 or Ipv4 address)<br>
+    Example:<br>
+    `./WY_TCP_Client 127.0.1 11234` (Connects to 127.0.0.1 port 11234)<br>
+    OR<br>
+    `./WY_TCP_Client` (Connects to defaults of ::1 port 9234)
 
 The source code for both are easy to read and understand - there is not much more to say about it.
