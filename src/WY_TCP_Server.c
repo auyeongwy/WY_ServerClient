@@ -142,7 +142,7 @@ void accept_connection()
     s_poll_fd.fd = m_server_socket; /* Prepare to accept connection. */
     s_poll_fd.events = POLLIN;
     do {
-        if(poll(&s_poll_fd, 1, 2000) > 0) /* Waits 2 seconds each call. */
+        if(poll(&s_poll_fd, 1, 2000) > 0) /* Polls for a connection and waits 2 seconds between each call. */
             break;
     } while (m_exit != 1); /* Exit if SIGINT caught or error polling. */
     if(m_exit == 1)

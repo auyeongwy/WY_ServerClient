@@ -1,5 +1,6 @@
 /**
  * @file WY_SC_Helper.c
+ * Provides helper functions to reduce code bloat in other parts of the application's code. 
 */
 #include "WY_SC_Helper.h"
 #include <string.h>
@@ -12,7 +13,7 @@
  * @param p_sockaddr A valid struct sockaddr containing IPv6 information.
  * @param p_addr Retunrs the IPv6 address in human-readable form. WY_SC_ADDR.ipdomain must first be assigned the value AF_INET6 before calling this function. 
  */
-static inline void get_ip6_addr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict p_addr);
+static inline void get_ip6_addr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict const p_addr);
 
 
 /**
@@ -20,7 +21,7 @@ static inline void get_ip6_addr(const struct sockaddr *const p_sockaddr, struct 
  * @param p_sockaddr A valid struct sockaddr containing IPv4 information.
  * @param p_addr Retunrs the IPv4 address in human-readable form. WY_SC_ADDR.ipdomain must first be assigned the value AF_INET before calling this function. 
  */
-static inline void get_ip4_addr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict p_addr);
+static inline void get_ip4_addr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict const p_addr);
 
 
 
@@ -51,7 +52,7 @@ void get_ip_from_args(const int argc, char * argv[], struct WY_SC_ADDR * restric
 }
 
 
-void get_address_from_sockaddr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict p_addr)
+void get_address_from_sockaddr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict const p_addr)
 {
     if(p_addr->ipdomain == AF_INET6)
         get_ip6_addr(p_sockaddr, p_addr);
@@ -60,7 +61,7 @@ void get_address_from_sockaddr(const struct sockaddr *const p_sockaddr, struct W
 }
 
 
-static inline void get_ip6_addr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict p_addr)
+static inline void get_ip6_addr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict const p_addr)
 {
     const struct sockaddr_in6 * const address = (struct sockaddr_in6 *)p_sockaddr;
 
@@ -69,7 +70,7 @@ static inline void get_ip6_addr(const struct sockaddr *const p_sockaddr, struct 
 }
 
 
-static inline void get_ip4_addr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict p_addr)
+static inline void get_ip4_addr(const struct sockaddr *const p_sockaddr, struct WY_SC_ADDR * restrict const p_addr)
 {
     const struct sockaddr_in * const address = (struct sockaddr_in *)p_sockaddr;
 
